@@ -1,0 +1,68 @@
+@page "/weather-custom-serializer"
+@using StateManagement.Server.Models
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@inject ILogger<WeatherCustomSerializer> Logger
+
+<PageTitle>Weather - Encrypted TemperatureC</PageTitle>
+
+<h2>Weather (TemperatureC is encrypted in HTML)</h2>
+
+@if (Forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (F) - Computed</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Forecasts)
+            {
+                <tr>
+                    <td>@f.Date.ToShortDateString()</td>
+                    <td><strong>@f.TemperatureF</strong></td>
+                    <td>@f.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-5 p-3 border bg-light">
+    <small class="text-muted">Check Output window for "CUSTOM SERIALIZER Persist/Restore CALLED"</small>
+</div>
+
+@code {
+    [PersistentState(AllowUpdates = true)]
+    public WeatherForecast[]? Forecasts { get; set; }     // ← Public property + attribute
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+
+        if (Forecasts is null)   // Framework already restored it if present
+        {
+            Logger.LogInformation("Generating new weather data");
+            var startDate = DateOnly.FromDateTime(DateTime.Now);
+            var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+
+            Forecasts = Enumerable.Range(1, 5).Select(i => new WeatherForecast
+            {
+                Date = startDate.AddDays(i),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = summaries[Random.Shared.Next(summaries.Length)]
+            }).ToArray();
+        }
+        else
+        {
+            Logger.LogInformation("Weather data restored (TemperatureC was decrypted)");
+        }
+    }
+}

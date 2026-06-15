@@ -1,0 +1,13 @@
+<h3>Child Component</h3>
+<p>Received from parent: @Message</p>
+<button class="btn btn-info" @onclick="SendMessageToParent">Send Message to Parent</button>
+@code {
+    [Parameter]
+    public string Message { get; set; } = "No message";
+[Parameter]
+    public EventCallback<string> OnChildMessage { get; set; }
+private async Task SendMessageToParent()
+    {
+        await OnChildMessage.InvokeAsync("Hello from Child!");
+    }
+}

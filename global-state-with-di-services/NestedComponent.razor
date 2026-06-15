@@ -1,0 +1,33 @@
+@implements IDisposable
+@inject ReactiveStateContainer ReactiveStateContainer
+
+<div class="border p-4 mt-4 bg-light shadow-sm rounded"
+     style="max-width: 580px;">
+    <p>
+        <strong>Nested component:</strong>
+        Property = <em>@ReactiveStateContainer.Property</em>
+    </p>
+
+    <button class="btn btn-secondary" @onclick="UpdateFromNested">
+        Update from Nested
+    </button>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Subscribe so nested component re-renders on changes
+        ReactiveStateContainer.OnChange += StateHasChanged;
+    }
+
+    private void UpdateFromNested()
+    {
+        ReactiveStateContainer.Property = $"Updated by Nested at {DateTime.Now:HH:mm:ss}";
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe on disposal
+        ReactiveStateContainer.OnChange -= StateHasChanged;
+    }
+}
