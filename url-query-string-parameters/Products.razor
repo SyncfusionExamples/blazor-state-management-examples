@@ -1,0 +1,87 @@
+@page "/products"
+@page "/products/{Category}"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+
+<h3>Products List (URL State Demo)</h3>
+
+<p>Current Category: <strong>@(Category ?? "All")</strong></p>
+<p>Current Search Term: <strong>@(SearchTerm ?? "—")</strong></p>
+
+<div class="mt-3">
+    <button class="btn btn-primary me-2" @onclick="ShowElectronics">Show Electronics</button>
+    <button class="btn btn-secondary me-2" @onclick="ShowAll">Show All</button>
+</div>
+
+<div class="mt-3">
+    <input type="text" 
+           class="form-control d-inline-block w-auto" 
+           @bind="searchTermInput" 
+           placeholder="Search products..." />
+    
+    <button class="btn btn-success ms-2" @onclick="ApplySearch">Search</button>
+</div>
+
+<hr />
+
+<h5>Results (@FilteredProducts.Count items)</h5>
+<ul class="list-group">
+    @foreach (var p in FilteredProducts)
+    {
+        <li class="list-group-item">@p.Name — <span class="text-muted">@p.Category</span></li>
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public string? Category { get; set; }
+
+    [SupplyParameterFromQuery(Name = "searchTerm")]
+    public string? SearchTerm { get; set; }
+
+    private string? searchTermInput;
+
+    // Sample data
+    private readonly List<Product> _allProducts = new()
+    {
+        new Product("Laptop", "Electronics"),
+        new Product("Smartphone", "Electronics"),
+        new Product("Headphones", "Electronics"),
+        new Product("T-Shirt", "Clothing"),
+        new Product("Jeans", "Clothing"),
+        new Product("Novel", "Books"),
+        new Product("Cookbook", "Books")
+    };
+
+    private record Product(string Name, string Category);
+
+    protected override void OnInitialized()
+    {
+        searchTermInput = SearchTerm;   // Sync input field with URL
+    }
+
+    private List<Product> FilteredProducts =>
+        _allProducts
+            .Where(p => string.IsNullOrEmpty(Category) || p.Category == Category)
+            .Where(p => string.IsNullOrEmpty(SearchTerm) ||
+                        p.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+    private void ShowElectronics() => Navigate("/products/Electronics");
+    private void ShowAll()         => Navigate("/products");
+
+    private void ApplySearch()     => Navigate(Category is null ? "/products" : $"/products/{Category}");
+
+    private void Navigate(string baseUri)
+    {
+        var uri = baseUri;
+
+        if (!string.IsNullOrEmpty(searchTermInput))
+        {
+            uri += uri.Contains('?') ? "&" : "?";
+            uri += $"searchTerm={Uri.EscapeDataString(searchTermInput)}";
+        }
+
+        NavManager.NavigateTo(uri);
+    }
+}

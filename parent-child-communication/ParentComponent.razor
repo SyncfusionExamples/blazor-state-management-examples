@@ -1,0 +1,15 @@
+@page "/parent-child"
+<h3>Parent Component</h3>
+<p>Parent's message: @parentMessage</p>
+<p>Message from child: @messageFromChild</p>
+<ChildComponent Message="@parentMessage" OnChildMessage="HandleChildMessage" />
+@code {
+    private string parentMessage = "Hello from Parent!";
+    private string messageFromChild = "Waiting...";
+private void HandleChildMessage(string message)
+    {
+        messageFromChild = message;
+        // Optionally, re-render the parent component
+        StateHasChanged();
+    }
+}

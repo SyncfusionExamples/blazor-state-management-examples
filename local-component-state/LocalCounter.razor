@@ -1,0 +1,15 @@
+@page "/counter-local"
+
+<h3>Local Counter</h3>
+<p>Current count: <strong>@currentCount</strong></p>
+<button @onclick="IncrementCount" class="btn btn-primary">Increment</button>
+
+@code {
+    private int currentCount = 0;   // local state
+
+    private void IncrementCount()
+    {
+        currentCount++;
+        // No StateHasChanged() needed – Blazor auto-detects the mutation
+    }
+}

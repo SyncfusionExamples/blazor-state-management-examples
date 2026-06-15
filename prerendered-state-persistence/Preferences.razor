@@ -1,0 +1,66 @@
+@page "/preferences"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedStorage
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<PageTitle>User Preferences</PageTitle>
+
+<h2>User Preferences (Securely Saved)</h2>
+
+<div class="mb-3">
+    <label class="form-label">Theme</label>
+    <select class="form-select" @bind="Preferences.Theme">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Language</label>
+    <select class="form-select" @bind="Preferences.Language">
+        <option value="en">English</option>
+        <option value="fr">French</option>
+        <option value="ta">Tamil</option>
+    </select>
+</div>
+
+<button class="btn btn-primary" @onclick="SavePreferences">
+    Save Preferences Securely
+</button>
+
+<button class="btn btn-secondary ms-2" @onclick="LoadPreferences">
+    Load Preferences
+</button>
+
+@code {
+    private UserPref Preferences = new();
+
+    private async Task SavePreferences()
+    {
+        await ProtectedStorage.SetAsync("userPreferences", Preferences);
+        await JS.InvokeVoidAsync("alert", "Preferences saved securely (encrypted)!");
+    }
+
+    private async Task LoadPreferences()
+    {
+        var result = await ProtectedStorage.GetAsync<UserPref>("userPreferences");
+
+        if (result.Success && result.Value is not null)
+        {
+            Preferences = result.Value;
+            await JS.InvokeVoidAsync("alert", $"Loaded: {Preferences.Theme} theme, {Preferences.Language}");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "No saved preferences found.");
+        }
+    }
+
+    public class UserPref
+    {
+        public string Theme { get; set; } = "light";
+        public string Language { get; set; } = "en";
+        public bool ShowAdvancedDashboard { get; set; } = true;
+    }
+}

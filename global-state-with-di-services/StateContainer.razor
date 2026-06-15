@@ -1,0 +1,29 @@
+@page "/reactive-state-container"
+@rendermode InteractiveWebAssembly
+@implements IDisposable
+@inject ReactiveStateContainer ReactiveStateContainer
+
+<h2>Reactive State Container Demo</h2>
+<p>Property: <strong>@ReactiveStateContainer.Property</strong></p>
+<button class="btn btn-info" @onclick="UpdateValue">Update from Parent</button>
+
+<NestedComponent />
+
+@code {
+    protected override void OnInitialized()
+    {
+        ReactiveStateContainer.OnChange += StateHasChanged;
+    }
+
+    private void UpdateValue()
+    {
+        ReactiveStateContainer.Property = $"Updated at {DateTime.Now}";
+    }
+
+    public void Dispose()
+    {
+        ReactiveStateContainer.OnChange -= StateHasChanged;  // Prevent memory leak
+    }
+}
+
+
