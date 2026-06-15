@@ -3,7 +3,7 @@
 This repository contains practical, real-world examples demonstrating different state management techniques in Blazor.
 
 It is designed as a companion to the blog:
-**"State Management in Blazor: A Complete Guide"**
+**"State Management in Blazor: Complete Guide to Building Scalable Apps"**
 
 Each example focuses on a specific pattern and is organized into separate folders for easy understanding and direct usage.
 
